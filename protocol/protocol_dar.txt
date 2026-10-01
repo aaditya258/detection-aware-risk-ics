@@ -1,0 +1,77 @@
+# Detection-aware dynamic risk (DAR) — pre-registered evaluation protocol
+
+Frozen 2026-09-30, before any DAR result was computed. Evidence source: the frozen v5 process monitor
+(step0b/v5.py, hashes in frozen_hashes_v5.txt), unchanged.
+
+## Assets and techniques (ATT&CK for ICS)
+Assets: H1 boiler pressure loop, H2 return-tank level loop, H3 turbine speed loop (HAI); S1 SWaT dechlorination/RO stage.
+Technique labels come from the attacked tags in the attack tables (points_eval):
+- T0855-SP  Unauthorized Command Message, setpoint: P1_B2016 (H1), P1_B3004 (H2), P2_AutoSD / P2_ManualSD (H3)
+- T0855-CO  Unauthorized Command Message, controller output: P1_PCV01D (H1), P1_LCV01D (H2), P2_SCO (H3)
+- T0832     Manipulation of View, masked/spoofed reading: P1_PIT01 (H1), P1_LIT01 (H2), P2_SIT01 (H3)
+- T0836     Modify Parameter, trip limit: P2_RTR, P2_VTR01–04 (H3)
+SWaT S1: T0832 = spoofed readings (FIT401, AIT402, AIT502, AIT504, FIT502, LIT401); T0855 = commands to actuators
+(UV401, P501, P201/P203/P205, MV501/MV503).
+Evidence per technique = advisory alarms of the v5 layer that monitors it: T0855-SP -> IE_SP, T0855-CO -> IE_CO,
+T0832 -> IPL1 (SWaT: the IPL layer of the spoofed tag, or any S1 IPL layer), T0836 -> none (no evidence stream).
+
+## Time base and ground truth
+Blocks of 5 min (300 s). y = 1 for (block, technique, asset) if an attack of that technique on that asset overlaps the
+block (attack window extended by 60 s). An alert for (technique, asset) in a block = an advisory-alarm onset of the
+mapped layer inside the block.
+
+## Detectability parameters (estimated on HAI 22.04 only, then frozen)
+- Episode detection: an attack is detected if an onset of the mapped layer falls in [start, end + 60 s].
+  k detected of n attacks -> Beta(1 + k, 1 + n - k); d_hat = posterior mean; d_L = 5th percentile.
+- alpha = share of attack-free 5-min blocks (> 15 min from any attack; plus train6) with an onset of the mapped layer.
+- SWaT (one attack file): d by leave-one-attack-out; alpha from the held-out part of the normal file.
+
+## Risk filter (proposed, "P")
+Two-state hidden Markov filter per (technique, asset): onset hazard rho per block, end rate r = 0.5 per block.
+Emission: alert -> likelihood d_hat (active) vs alpha (inactive); silence -> (1 - d_L) vs (1 - alpha).
+Asset risk = impact_a x sum over techniques of pi. Impacts (constructed IEC 62443-3-2-style levels): H1 4, H3 4, H2 2, S1 3.
+Priors: operational rho = 1 per year per (technique, asset) (steady state pi_bar); testbed rho = 22.04 attack frequency.
+
+## Baselines
+- B1 static: pi = pi_bar always (static IEC 62443-3-2 style likelihood; with no threat-intelligence feed an
+  intelligence-only update reduces to this).
+- B2 detection-blind: same filter with d = 0.9 for every technique (silence treated as strong evidence everywhere).
+- B4 ablation: proposed filter with d_hat instead of d_L on silence (tests Proposition 1).
+
+## Metrics (evaluation on HAI 23.05 primary table, HAI 21.03, SWaT; 22.04 reported as development)
+- FR  false reassurance: share of attack blocks with pi < pi_bar (operational prior). Headline.
+- EL  elevation: share of attacks with pi > 10 x pi_bar within [start, end + 60 s]; median delay.
+- FE  false elevations: onsets of pi > 10 x pi_bar per asset per day in attack-free time.
+- BS  Brier score with the testbed prior, per technique.
+- Ranking: assets ordered by mean attack-free risk under P, B1, B2.
+
+## Pre-registered expectations (the claim holds if all three are met on 23.05 and 21.03)
+E1 FR of P <= 5% for every technique × asset with attacks.
+E2 FR of B2 >= 50% on at least one technique × asset that P shows as poorly detected (d_L < 0.3).
+E3 FE of P equals the monitor's advisory rate by construction; reported, no threshold. EL of P for techniques with
+   d_hat >= 0.7 on 22.04 is reported with its drop on new versions.
+Everything else is descriptive.
+
+## Amendment A1 (2026-09-30, before any DAR metric was computed; only v5 alarm caching had run)
+Reason: two definitional problems found while writing the code, before looking at any result.
+1. With d_L slightly above alpha, silence multiplies the posterior by (1 - d_L)/(1 - alpha), slightly below 1, so a
+   strict "pi < pi_bar" counts a 1% dip as reassurance. FR is redefined as the share of attack blocks with
+   pi < 0.5 x pi_bar (risk shown at less than half its prior).
+2. For a well-detected technique (d = 0.7) a calibrated model SHOULD lower risk in the 30% of attacks it misses, so
+   "FR <= 5% everywhere" tests the detector, not the risk update. E1 is replaced by:
+   E1a FR of P <= 5% on every technique x asset that 22.04 shows as poorly detected (d_L < 0.3);
+   E1b FR of P <= FR of B2 on every technique x asset with attacks.
+   A calibration check is added: observed miss rate on new data vs 1 - d_hat (reported).
+E2 and E3 unchanged.
+
+## RESULT (2026-09-30; code dar.py and rq3_monitoring_value.py fingerprinted in frozen_dar.txt before running)
+Expectations: E1a met, E1b met, E2 met on HAI 23.05, HAI 21.03 and SWaT (leave-one-attack-out).
+- Poorly detected cells (d_L < 0.3 on 22.04): T0855-SP on H1/H2/H3 and T0836 on H3 (SWaT: T0855).
+  False reassurance: P 0% in every such cell on every set; B2 (detection-blind) 100% on HAI, 50% on SWaT T0855.
+- P never shows more false reassurance than B2 in any cell. Results identical for rho x0.1 and x10.
+- Independent re-computation (verify_independent.py, separate code) reproduces the T0855-SP numbers exactly.
+Honest negatives: Brier score of P is not better than the static prior (B1) on HAI; false elevations 2.1–5.2 per
+asset per day equal the monitor's advisory rate; detection of controller-output commands on the turbine fell from
+3/4 (22.04) to 0/1 (23.05) and recovered to 7/7 (21.03). Monitoring value (descriptive): DCS internals cut tank-loop
+residual quiet risk by 11% at +7 false alerts/day and give no gain on the boiler; logging trip limits would cut the
+turbine's residual risk by 25%.
