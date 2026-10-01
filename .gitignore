@@ -1,0 +1,7 @@
+outputs/
+data/*
+!data/.gitkeep
+__pycache__/
+*.pkl
+*.log
+paper_figures/figures/

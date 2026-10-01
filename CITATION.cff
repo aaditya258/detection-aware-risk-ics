@@ -1,0 +1,9 @@
+cff-version: 1.2.0
+message: "If you use this code, please cite the paper."
+title: "Detection-aware dynamic cyber risk assessment for industrial control systems: code and results"
+authors:
+  - family-names: "[Surname]"
+    given-names: "[Given name]"
+version: "1.0.0"
+date-released: "2026-09-30"
+license: MIT
