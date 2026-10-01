@@ -1,0 +1,7 @@
+asset,source,residual_quiet_risk,residual_if_blind
+H1,historian,5.65,12
+H1,historian + DCS internals,5.81,12
+H2,historian,3.58,6
+H2,historian + DCS internals,3.17,6
+H3,historian,14.74,16
+H3,what-if: trip limits logged (d_L 0.9),11.08,16

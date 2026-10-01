@@ -1,0 +1,11 @@
+asset,tech,source,attacks_22_04,detected,d_hat,d_L,alpha_per_block,false_alerts_per_day,median_delay_s
+H1,T0855-SP,historian (v5 monitor),8,0,0.1,0.006,0.0001,0.03,
+H1,T0855-CO,historian (v5 monitor),7,7,0.889,0.688,0.0031,0.88,106.0
+H1,T0832,historian (v5 monitor),6,6,0.875,0.652,0.0061,1.77,95.0
+H2,T0855-SP,historian (v5 monitor),5,0,0.143,0.009,0.0012,0.35,
+H2,T0855-CO,historian (v5 monitor),10,7,0.667,0.436,0.0037,1.06,81.0
+H2,T0832,historian (v5 monitor),6,5,0.75,0.479,0.0031,0.88,90.0
+H3,T0855-SP,historian (v5 monitor),8,0,0.1,0.006,0.0001,0.03,
+H3,T0855-CO,historian (v5 monitor),4,3,0.667,0.343,0.008,2.3,83.0
+H3,T0832,historian (v5 monitor),5,4,0.714,0.418,0.0037,1.06,113.0
+H3,T0836,historian (v5 monitor),4,0,0.167,0.01,0.0001,0.03,

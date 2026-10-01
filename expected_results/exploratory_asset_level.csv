@@ -1,0 +1,7 @@
+set,tech,episodes,other_layer_alert,other_layer_alert_single_technique_attack,asset_FR_P,asset_FR_B2
+2204,T0855-SP,21,20,11,0.05,0.1
+2204,T0836,4,1,1,0.0,0.75
+2305,T0855-SP,13,13,7,0.04,0.13
+2305,T0836,2,0,0,0.0,1.0
+2103,T0855-SP,22,21,10,0.02,0.02
+2103,T0836,9,9,6,0.0,0.07

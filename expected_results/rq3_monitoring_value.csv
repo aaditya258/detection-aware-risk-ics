@@ -1,0 +1,18 @@
+asset,tech,source,attacks,detected,d_L,false_alerts_per_day,quiet_risk_multiplier
+H1,T0855-SP,historian,7.0,0.0,0.006,0.0,0.987
+H1,T0855-SP,historian + DCS internals,7.0,1.0,0.046,14.95,1.012
+H1,T0855-CO,historian,6.0,6.0,0.652,4.03,0.214
+H1,T0855-CO,historian + DCS internals,6.0,6.0,0.652,16.61,0.227
+H1,T0832,historian,6.0,6.0,0.652,0.95,0.212
+H1,T0832,historian + DCS internals,6.0,6.0,0.652,3.56,0.214
+H2,T0855-SP,historian,4.0,0.0,0.01,1.9,0.993
+H2,T0855-SP,historian + DCS internals,4.0,0.0,0.01,5.22,1.016
+H2,T0855-CO,historian,7.0,4.0,0.289,0.24,0.552
+H2,T0855-CO,historian + DCS internals,7.0,6.0,0.529,7.59,0.319
+H2,T0832,historian,5.0,5.0,0.607,0.95,0.246
+H2,T0832,historian + DCS internals,5.0,5.0,0.607,3.8,0.249
+H3,T0855-SP,historian,2.0,0.0,0.017,0.47,0.97
+H3,T0855-CO,historian,1.0,0.0,0.025,3.56,0.974
+H3,T0832,historian,2.0,1.0,0.135,2.61,0.774
+H3,T0836,historian,2.0,0.0,0.017,0.0,0.967
+H3,T0836,what-if: trip limits logged (d_L 0.9),,,0.9,0.03,0.053
